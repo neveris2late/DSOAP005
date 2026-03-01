@@ -1,21 +1,29 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class RuntimeSuspectManager : MonoBehaviour
 {
-    // 字典：通过嫌疑人的ID快速查找其运行时数据
     private Dictionary<string, RuntimeSuspect> suspectDictionary = new Dictionary<string, RuntimeSuspect>();
     
-    // 新增：获取所有嫌疑人的运行时数据字典，供 AnalysisManager 等系统遍历使用
+    // 当前被选中的嫌疑人
+    public RuntimeSuspect CurrentSuspect { get; private set; }
+    
+    // 当选中嫌疑人改变时触发的事件
+    public event Action<RuntimeSuspect> OnCurrentSuspectChanged;
+
+    // 存储今日登场的嫌疑人列表
+    public List<RuntimeSuspect> DailyActiveSuspects { get; private set; } = new List<RuntimeSuspect>();
+
     public Dictionary<string, RuntimeSuspect> GetAllSuspects()
     {
-        return suspectDictionary;
+        return suspectDictionary; //
     }
 
-    // 初始化管理器，由 GameManager 调用
     public void Initialize(List<SuspectScriptableObject> suspectDatas)
     {
         suspectDictionary.Clear();
+        CurrentSuspect = null; 
 
         foreach (var data in suspectDatas)
         {
@@ -26,23 +34,43 @@ public class RuntimeSuspectManager : MonoBehaviour
                 RuntimeSuspect newRuntimeSuspect = new RuntimeSuspect(data);
                 suspectDictionary.Add(data.suspectID, newRuntimeSuspect);
             }
-            else
-            {
-                Debug.LogWarning($"存在重复的嫌疑人ID: {data.suspectID}");
-            }
         }
-        Debug.Log($"成功初始化了 {suspectDictionary.Count} 名嫌疑人。");
     }
 
-    // 获取特定嫌疑人的运行时数据
     public RuntimeSuspect GetSuspect(string id)
     {
         if (suspectDictionary.TryGetValue(id, out RuntimeSuspect suspect))
         {
             return suspect;
         }
-        Debug.LogError($"找不到ID为 {id} 的嫌疑人！");
-        return null;
+        return null; //
     }
-    
+
+    // 设置今日登场的 4 个嫌疑人（在进入分析场景前或 Start 时调用）
+    public void SetupDailyLineup(List<string> dailySuspectIDs)
+    {
+        DailyActiveSuspects.Clear();
+        foreach (string id in dailySuspectIDs)
+        {
+            RuntimeSuspect suspect = GetSuspect(id);
+            if (suspect != null) DailyActiveSuspects.Add(suspect);
+        }
+        
+        // 默认选中第一个
+        if (DailyActiveSuspects.Count > 0)
+        {
+            SetCurrentSuspect(DailyActiveSuspects[0].BaseData.suspectID);
+        }
+    }
+
+    // 设置当前正在查看/分析的嫌疑人
+    public void SetCurrentSuspect(string id)
+    {
+        RuntimeSuspect target = GetSuspect(id);
+        if (target != null)
+        {
+            CurrentSuspect = target;
+            OnCurrentSuspectChanged?.Invoke(CurrentSuspect);
+        }
+    }
 }

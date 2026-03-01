@@ -56,35 +56,51 @@ public class ScoreController : MonoBehaviour
 
     private void OnAnalyzeClicked()
     {
-        if (activeClues.Count == 0) return; // 如果池子里没线索，不执行分析
+        if (activeClues.Count == 0) return; //
 
-        analyzeButton.interactable = false;
-        int totalScore = 0;
+        analyzeButton.interactable = false; //
+        int totalScore = 0; //
 
-        // 1. 聚拢动画与分数计算
-        foreach (var clue in activeClues)
+        foreach (var clue in activeClues) 
         {
-            // 如果线索标签被判定为 true，则 +1 分；false 默认 +0 分
-            if (clue.isGood) 
-            {
-                totalScore++; 
-            }
+            if (clue.isGood) totalScore++; 
             
+            // 【新增】：在执行 DOTween 聚拢前，先关掉这个线索的物理模拟
+            Rigidbody2D rb = clue.GetComponent<Rigidbody2D>();
+            if (rb != null) rb.simulated = false;
+
             clue.transform.DOKill(); 
-            clue.transform.DOMove(analyzeCenterPoint.position, 0.5f).SetEase(Ease.InBack);
-            clue.transform.DOScale(Vector3.zero, 0.5f).SetDelay(0.3f);
+            clue.transform.DOMove(analyzeCenterPoint.position, 0.5f).SetEase(Ease.InBack); 
+            clue.transform.DOScale(Vector3.zero, 0.5f).SetDelay(0.3f); 
         }
 
-        // 2. 延迟等待动画播放完毕，输出最终得分
-        DOVirtual.DelayedCall(1.5f, () => 
+        DOVirtual.DelayedCall(1.5f, () =>  //
         {
-            Debug.Log($"<color=cyan>案件分析完成！当前线索池总得分: {totalScore} / {activeClues.Count}</color>");
+            Debug.Log($"案件分析完成！得分: {totalScore} / {activeClues.Count}"); //
             
-            // TODO: 在这里根据 totalScore 触发不同的剧情分支或 UI 提示
+            // 【关键点】：将分数传递给 AM
+            if (AnalysisManager.Instance != null)
+            {
+                AnalysisManager.Instance.ProcessCaseAnalysis(totalScore, activeClues.Count);
+            }
             
-            foreach (var clue in activeClues) Destroy(clue.gameObject);
-            activeClues.Clear();
-            analyzeButton.interactable = true;
+            foreach (var clue in activeClues) Destroy(clue.gameObject); //
+            activeClues.Clear(); //
+            analyzeButton.interactable = true; //
         });
+    }
+    
+    // 【新增】：用于清空分析池
+    public void ClearAllClues()
+    {
+        foreach (var clue in activeClues)
+        {
+            if (clue != null && clue.gameObject != null)
+            {
+                clue.transform.DOKill(); // 停止所有 DOTween 动画
+                Destroy(clue.gameObject);
+            }
+        }
+        activeClues.Clear();
     }
 }

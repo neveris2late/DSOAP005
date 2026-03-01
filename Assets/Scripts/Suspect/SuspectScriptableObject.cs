@@ -1,4 +1,32 @@
 using UnityEngine;
+using System;
+using System.Collections.Generic;
+
+// 定义单个问题的数据结构
+[Serializable]
+public class InterrogationQuestion
+{
+    [Tooltip("对应 Ink 脚本中的变量名，例如 q1_selected")]
+    public string inkVariableName; 
+    
+    [Tooltip("显示在UI上的问题简介")]
+    [TextArea(2, 4)]
+    public string questionInfo; 
+}
+
+// 定义分数段的数据结构
+[Serializable]
+public class ScoreTier
+{
+    public string tierName; // 方便在Inspector里辨认，例如 "低分 0-2"
+    public int minScore;    // 包含该分数
+    public int maxScore;    // 包含该分数
+    
+    [Tooltip("该分数段下，供玩家挑选的问题池")]
+    public List<InterrogationQuestion> availableQuestions;
+}
+
+
 
 // 在Project窗口右键即可创建该资产： Create -> 游戏数据 -> 嫌疑人档案
 [CreateAssetMenu(fileName = "New Suspect", menuName = "游戏数据/嫌疑人档案")]
@@ -20,4 +48,8 @@ public class SuspectScriptableObject : ScriptableObject
     [TextArea(10, 20)]               // 让输入框更大，方便编辑富文本
     [Tooltip("支持富文本格式，例如：<b>加粗</b>, <color=#FF0000>红色</color>")]
     public string profileRichText;  // 嫌疑人档案（富文本）
+    
+    [Header("审问问题配置")]
+    [Tooltip("根据线索得分配置不同的可用问题池")]
+    public List<ScoreTier> interrogationTiers;
 }

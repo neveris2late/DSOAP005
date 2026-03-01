@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdc516a45bd184154a6000fedcba3388, type: 3}
+  m_Name: VivianHwang
+  m_EditorClassIdentifier: 
+  suspectID: Vv_Hwang
+  suspectName: Vivian Hwang
+  avatar: {fileID: 21300000, guid: e61d050005d5660459236f04d5072e30, type: 3}
+  portrait: {fileID: 21300000, guid: ffb6cdaad30e2f04ba0bfd3b2e366da1, type: 3}
+  inkStory: {fileID: 4900000, guid: 16a31c7cb3dd1430b833b6468b69ab57, type: 3}
+  profileRichText: "<color=#FFD700><link=\"vivian_hwang|false\">\u8587\u8587\u5B89\xB7\u9EC4</link></color>\u7684\u8C03\u67E5\u6863\u6848\n\u73B0\u5E7430\u5C81\uFF0C\u8868\u9762\u8EAB\u4EFD\u662F<color=#FFD700><link=\"org_obsidian_venture|true\">\u9ED1\u66DC\u77F3\u8FDC\u6D0B\u98CE\u6295\u673A\u6784</link></color>\u7684\u9AD8\u7EA7\u8DE8\u5883\u6295\u8D44\u7ECF\u7406\uFF0C\u5B9E\u5219\u6697\u4E2D\u638C\u63A7\u7740<color=#FFD700><link=\"loc_rainwater|true\">\u5DDD\u6D41\u57CE\u96E8\u6C34\u533A</link></color>\u8FD1\u534A\u6570\u5730\u4E0B\u94B1\u5E84\u4E0E\u9ED1\u5E02\u60C5\u62A5\u7F51\uFF0C\u88AB\u79F0\u4E3A\u4E0D\u53EF\u8A00\u8BF4\u7684\u201C\u5730\u4E0B\u5973\u738B\u201D\u3002\u5979\u957F\u8896\u5584\u821E\uFF0C\u62E5\u6709\u591A\u4F4D\u8EAB\u4EFD\u663E\u8D6B\u7684\u60C5\u4EBA\u2014\u2014\u4ECE\u5784\u65AD\u5DE8\u5934\u7684\u6267\u884C\u8463\u4E8B\u5230\u5B89\u5168\u5C40\u7684\u5185\u90E8\u9AD8\u7BA1\uFF0C\u5979\u5C06\u8FD9\u4E9B\u7537\u4EBA\u73A9\u5F04\u4E8E\u80A1\u638C\u4E4B\u95F4\uFF0C\u5229\u7528\u60C5\u611F\u64CD\u63A7\u4E0E\u5229\u76CA\u94FE\u6761\u7F16\u7EC7\u4E86\u4E00\u5F20\u575A\u4E0D\u53EF\u6467\u7684\u5E87\u62A4\u7F51\u3002\u8C03\u67E5\u8868\u660E\uFF0C\u8587\u8587\u5B89\u6781\u5C11\u5F04\u810F\u81EA\u5DF1\u7684\u53CC\u624B\uFF0C\u800C\u662F\u64C5\u957F\u901A\u8FC7<color=#FFD700><link=\"clue_financial_leverage|true\">\u9AD8\u6760\u6746\u8D44\u672C\u503A\u52A1\u4E0E\u795E\u7ECF\u7B79\u7801</link></color>\u6765\u6DF1\u5EA6\u63A7\u5236\u76EE\u6807\u3002\u4F20\u8A00\u79F0\u5979\u690D\u5165\u4E86\u7531<color=#FFD700><link=\"org_model_co|true\">\u7EEF\u7EA2\u4E0E\u6E58\u84DD\u6A21\u7279\u516C\u53F8</link></color>\u8FDD\u89C4\u5B9A\u5236\u7684<color=#FFD700><link=\"clue_pheromone_mod|false\">\u519B\u7528\u7EA7\u8D39\u6D1B\u8499\u5FAE\u63A7\u817A\u4F53</link></color>\uFF0C\u914D\u5408\u5176\u5353\u8D8A\u7684\u5FC3\u7406\u535A\u5F08\u672F\uFF0C\u80FD\u5728\u65E0\u5F62\u4E2D\u5E72\u9884\u4ED6\u4EBA\u7684\u6F5C\u610F\u8BC6\u4E0E\u51B3\u7B56\u3002\u6211\u4EEC\u5728\u8FFD\u67E5<color=#FFD700><link=\"ryan_lebisko|true\">\u745E\u6069\xB7\u52D2\u6BD4\u65AF\u79D1</link></color>\u7684\u6697\u7F51\u8D44\u91D1\u6C60\u65F6\uFF0C\u53D1\u73B0\u8587\u8587\u5B89\u6781\u6709\u53EF\u80FD\u5C31\u662F\u5176\u6700\u5927\u7684\u5E55\u540E\u91D1\u4E3B\uFF0C\u751A\u81F3\u4E3A\u4ED6\u90A3\u4E9B\u9488\u5BF9<color=#FFD700><link=\"clue_persona_test|true\">\u4EBA\u683C\u6D4B\u8BD5\u4E0E\u8BC4\u4F30</link></color>\u7684\u7834\u89E3\u9879\u76EE\u63D0\u4F9B\u4E86\u7B97\u6CD5\u7B97\u529B\u3002\u5C3D\u7BA1\u5ACC\u7591\u91CD\u5927\uFF0C\u4F46\u5979\u603B\u80FD\u51ED\u501F\u6BEB\u65E0\u7834\u7EFD\u7684\u79BB\u5CB8\u6570\u636E\u548C\u60C5\u4EBA\u4EEC\u7684\u65BD\u538B\u5168\u8EAB\u800C\u9000\u3002\u9274\u4E8E\u5176\u6781\u5EA6\u5371\u9669\u7684\u6E17\u900F\u80FD\u529B\uFF0C\u673A\u52A8\u68C0\u5BDF\u5B98\u5DF2\u5C06\u5176\u5217\u4E3A<color=#FFD700><link=\"status_black_widow|false\">\u201C\u9ED1\u5BE1\u5987\u201D\u5E72\u6D89\u5B9E\u4F53</link></color>\uFF0C\u5E76\u4E25\u4EE4\u7981\u6B62\u4EFB\u4F55\u521D\u7EA7\u8C03\u67E5\u5458\u4E0E\u5176\u8FDB\u884C\u65E0\u76D1\u542C\u72B6\u6001\u4E0B\u7684\u5355\u72EC\u63A5\u89E6\u3002"
+  interrogationTiers:
+  - tierName: low
+    minScore: 0
+    maxScore: 2
+    availableQuestions:
+    - inkVariableName: q1_selected
+      questionInfo: "1\u53F7\u95EE\u9898"
+    - inkVariableName: q2_selected
+      questionInfo: "2\u53F7\u95EE\u9898"
+    - inkVariableName: q3_selected
+      questionInfo: "3\u53F7\u95EE\u9898"
+    - inkVariableName: q4_selected
+      questionInfo: "4\u53F7\u95EE\u9898"
+    - inkVariableName: q5_selected
+      questionInfo: "5\u53F7\u95EE\u9898"
+  - tierName: Medium
+    minScore: 3
+    maxScore: 5
+    availableQuestions:
+    - inkVariableName: q1_selected
+      questionInfo: "1\u53F7\u95EE\u9898"
+    - inkVariableName: q2_selected
+      questionInfo: "2\u53F7\u95EE\u9898"
+    - inkVariableName: q3_selected
+      questionInfo: "3\u53F7\u95EE\u9898"
+    - inkVariableName: q4_selected
+      questionInfo: "4\u53F7\u95EE\u9898"
+    - inkVariableName: q5_selected
+      questionInfo: "5\u53F7\u95EE\u9898"
+  - tierName: High
+    minScore: 6
+    maxScore: 10
+    availableQuestions:
+    - inkVariableName: q1_selected
+      questionInfo: "1\u53F7\u95EE\u9898"
+    - inkVariableName: q2_selected
+      questionInfo: "2\u53F7\u95EE\u9898"
+    - inkVariableName: q3_selected
+      questionInfo: "3\u53F7\u95EE\u9898"
+    - inkVariableName: q4_selected
+      questionInfo: "4\u53F7\u95EE\u9898"
+    - inkVariableName: q5_selected
+      questionInfo: "5\u53F7\u95EE\u9898"
