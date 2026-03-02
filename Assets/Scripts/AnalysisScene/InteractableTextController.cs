@@ -45,25 +45,33 @@ public class InteractableText : MonoBehaviour, IPointerClickHandler, IPointerMov
         if (currentLinkIndex != -1)
         {
             TMP_LinkInfo linkInfo = textMeshPro.textInfo.linkInfo[currentLinkIndex];
-            string rawLinkID = linkInfo.GetLinkID(); // 获取原始LinkID，例如 "android_core|true"
+            string rawLinkID = linkInfo.GetLinkID(); 
             string clueText = linkInfo.GetLinkText();
 
             string clueID = rawLinkID;
-            bool isGood = false; // 默认给 false
+            bool isGood = false; 
 
-            // 使用 '|' 符号分割ID和布尔值
             if (rawLinkID.Contains("|"))
             {
                 string[] parts = rawLinkID.Split('|');
-                clueID = parts[0]; // 前半部分是线索ID
+                clueID = parts[0]; 
                 if (parts.Length > 1)
                 {
-                    // 尝试将后半部分转换为布尔值 (true 或 false)
                     bool.TryParse(parts[1], out isGood);
                 }
             }
 
-            // 把解析出来的 isGood 传给协程
+            // 【核心修改】：先向 ScoreController 询问是否可以添加
+            if (ScoreController.Instance != null)
+            {
+                if (!ScoreController.Instance.CanAddClue(clueID))
+                {
+                    // 如果池子满了，或者该线索已经在池子里了，直接 return，不执行飞行动画
+                    return; 
+                }
+            }
+
+            // 检查通过，开始协程播放飞行动画
             StartCoroutine(SpawnAndFlyCharacters(linkInfo, clueID, clueText, isGood));
         }
     }

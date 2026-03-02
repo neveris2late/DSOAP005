@@ -1,5 +1,3 @@
-//职责： 管理分析池、记录分数、执行最终的“分析”聚拢动画
-
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
@@ -11,39 +9,62 @@ public class ScoreController : MonoBehaviour
     public static ScoreController Instance;
 
     [Header("UI References")]
-    public Transform analysisPool; // 分析池的父节点
-    public Button analyzeButton;   // 分析按钮
-    public Transform analyzeCenterPoint; // 聚拢的中心点
+    public Transform analysisPool; 
+    public Button analyzeButton;   
+    public Transform analyzeCenterPoint; 
+    
+    // 【新增】：超出上限时的警告提示框
+    public GameObject maxCluesWarningBox; 
 
     [Header("Prefabs")]
-    public GameObject floatingCluePrefab; // 漂浮线索预制体
+    public GameObject floatingCluePrefab; 
 
-    // 存储当前池中的线索
     private List<FloatingClue> activeClues = new List<FloatingClue>();
+    
+    // 【新增】：设置最大线索数量
+    private const int MAX_CLUES_COUNT = 5;
 
-    // 模拟线索数据库 (实际开发中可以读取配置表)
     public Dictionary<string, bool> clueDatabase = new Dictionary<string, bool>()
     {
-        {"android_core", true}, // 核心是被破坏的 (+1分)
-        {"fake_id", false},     // 伪造的ID (0分)
+        {"android_core", true}, 
+        {"fake_id", false},     
     };
 
     private void Awake()
     {
         Instance = this;
         analyzeButton.onClick.AddListener(OnAnalyzeClicked);
+        
+        // 【新增】：初始状态隐藏警告框
+        if (maxCluesWarningBox != null) maxCluesWarningBox.SetActive(false);
     }
 
-    // 供 InteractableText 调用的生成方法
-    // 接收从 InteractableText 传来的 isGood 参数
+    // 【新增】：供 InteractableText 调用的预检方法
+    public bool CanAddClue(string clueID)
+    {
+        // 如果池子里已经有这个线索了，直接返回 false (不显示警告，只是防止重复添加和重复飞行动画)
+        if (activeClues.Exists(c => c.clueID == clueID)) return false; 
+
+        // 如果已经达到或超过5个
+        if (activeClues.Count >= MAX_CLUES_COUNT)
+        {
+            // 激活警告提示框
+            if (maxCluesWarningBox != null) maxCluesWarningBox.SetActive(true);
+            return false;
+        }
+
+        return true;
+    }
+
     public void AddClueToPool(string clueID, string clueName, bool isGood)
     {
         if (activeClues.Exists(c => c.clueID == clueID)) return;
+        // 双重保险
+        if (activeClues.Count >= MAX_CLUES_COUNT) return; 
 
         GameObject newClueObj = Instantiate(floatingCluePrefab, analysisPool);
         FloatingClue clueScript = newClueObj.GetComponent<FloatingClue>();
         
-        // 直接使用传入的 isGood 属性进行初始化
         clueScript.Init(clueID, clueName, isGood);
         activeClues.Add(clueScript);
     }
@@ -52,20 +73,28 @@ public class ScoreController : MonoBehaviour
     {
         activeClues.Remove(clue);
         Destroy(clue.gameObject);
+        
+        // 【新增】：当线索数量减少到安全线以下时，隐藏警告框
+        if (activeClues.Count < MAX_CLUES_COUNT && maxCluesWarningBox != null)
+        {
+            maxCluesWarningBox.SetActive(false);
+        }
     }
 
     private void OnAnalyzeClicked()
     {
-        if (activeClues.Count == 0) return; //
+        if (activeClues.Count == 0) return; 
 
-        analyzeButton.interactable = false; //
-        int totalScore = 0; //
+        analyzeButton.interactable = false; 
+        int totalScore = 0; 
+        
+        // 【新增】：点击分析时也把警告框关掉
+        if (maxCluesWarningBox != null) maxCluesWarningBox.SetActive(false);
 
         foreach (var clue in activeClues) 
         {
             if (clue.isGood) totalScore++; 
             
-            // 【新增】：在执行 DOTween 聚拢前，先关掉这个线索的物理模拟
             Rigidbody2D rb = clue.GetComponent<Rigidbody2D>();
             if (rb != null) rb.simulated = false;
 
@@ -74,33 +103,34 @@ public class ScoreController : MonoBehaviour
             clue.transform.DOScale(Vector3.zero, 0.5f).SetDelay(0.3f); 
         }
 
-        DOVirtual.DelayedCall(1.5f, () =>  //
+        DOVirtual.DelayedCall(1.5f, () =>  
         {
-            Debug.Log($"案件分析完成！得分: {totalScore} / {activeClues.Count}"); //
+            Debug.Log($"案件分析完成！得分: {totalScore} / {activeClues.Count}"); 
             
-            // 【关键点】：将分数传递给 AM
             if (AnalysisManager.Instance != null)
             {
                 AnalysisManager.Instance.ProcessCaseAnalysis(totalScore, activeClues.Count);
             }
             
-            foreach (var clue in activeClues) Destroy(clue.gameObject); //
-            activeClues.Clear(); //
-            analyzeButton.interactable = true; //
+            foreach (var clue in activeClues) Destroy(clue.gameObject); 
+            activeClues.Clear(); 
+            analyzeButton.interactable = true; 
         });
     }
     
-    // 【新增】：用于清空分析池
     public void ClearAllClues()
     {
         foreach (var clue in activeClues)
         {
             if (clue != null && clue.gameObject != null)
             {
-                clue.transform.DOKill(); // 停止所有 DOTween 动画
+                clue.transform.DOKill(); 
                 Destroy(clue.gameObject);
             }
         }
         activeClues.Clear();
+        
+        // 【新增】：清空池子时，重置警告框状态
+        if (maxCluesWarningBox != null) maxCluesWarningBox.SetActive(false);
     }
 }

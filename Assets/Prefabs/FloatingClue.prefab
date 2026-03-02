@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7080436679472861068}
   - component: {fileID: 1939190179534652055}
   - component: {fileID: 6898779859868031983}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -86,7 +86,7 @@ GameObject:
   - component: {fileID: 2215074630580456547}
   - component: {fileID: 8684886439802133967}
   - component: {fileID: 2700278589563656330}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -163,7 +163,7 @@ GameObject:
   - component: {fileID: 4660235222486129775}
   - component: {fileID: 6891104567205941937}
   - component: {fileID: 3288249274173761798}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: FloatingClue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -304,7 +304,7 @@ GameObject:
   - component: {fileID: 1680406263290160931}
   - component: {fileID: 967499022274706100}
   - component: {fileID: 1218600266684875325}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: CloseBtn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -424,7 +424,7 @@ GameObject:
   - component: {fileID: 5451578875784646242}
   - component: {fileID: 1347249831570489533}
   - component: {fileID: 438379543457101985}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: ClueName
   m_TagString: Untagged
   m_Icon: {fileID: 0}

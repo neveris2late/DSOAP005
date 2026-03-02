@@ -6,44 +6,40 @@ using System.Collections.Generic;
 public class AnalysisManager : MonoBehaviour
 {
     public static AnalysisManager Instance { get; private set; }
+    
+    // 【新增】：用于整体控制分析界面的父级物体
+    [Header("场景主要面板")]
+    public GameObject analysisMainPanel;
 
     [Header("左侧 UI：4个嫌疑人头像")]
-    public Button[] avatarButtons; // 请在Inspector拖入左侧的4个Button
-    public Image[] avatarImages;   // 对应Button上的Image组件
+    public Button[] avatarButtons; 
+    public Image[] avatarImages;   
 
     [Header("中央与右侧 UI")]
     public Image centerPortrait;
     public TextMeshProUGUI profileText;
 
-    [Header("审问问题 UI (分析成功后弹出)")]
-    public GameObject questionPanel;        // 问题选择面板的父节点 (默认隐藏)
-    public Transform questionListParent;    // 动态生成问题的容器
-    public GameObject questionTogglePrefab; // 包含 Toggle 和 TextMeshProUGUI 的预制体
-    public Button confirmQuestionsButton;   // 确认按钮
-    public TextMeshProUGUI selectionCountText; // 显示 "已选 0/3"
-
-    // 记录当前生成的问题Toggle列表及其对应的数据
-    private Dictionary<Toggle, string> currentQuestionToggles = new Dictionary<Toggle, string>();
-    private int selectedCount = 0;
-    private const int MAX_SELECTION = 3;
+    [Header("引用外部控制器")]
+    // 【新增】：引用新抽离的问题面板控制器
+    public QuestionPanelController questionPanelController; 
+    // 【新增】：引用提示面板控制器
+    public HintPanelController hintPanelController;
 
     private void Awake()
     {
-        if (Instance != null && Instance != this) Destroy(gameObject); //
-        else Instance = this; //
+        if (Instance != null && Instance != this) Destroy(gameObject); 
+        else Instance = this; 
     }
 
-private void Start()
+    private void Start()
     {
-        // 1. 绑定确认按钮事件
-        confirmQuestionsButton.onClick.AddListener(OnConfirmQuestionsClicked);
-        questionPanel.SetActive(false);
+        // 1. 初始状态下，先隐藏整个分析主界面
+        if (analysisMainPanel != null) analysisMainPanel.SetActive(false);
 
-        // 【修改点 1】：事件监听分离
-        // 让嫌疑人切换事件只去刷新中央和右侧的数据，绝不碰左侧的按钮
         GameManager.Instance.SuspectManager.OnCurrentSuspectChanged += UpdateSuspectDetailsUI;
+        questionPanelController.OnQuestionsConfirmed += OnQuestionPanelConfirmed;
 
-        // 获取测试 IDs
+        // 加载数据结构 (此处修改组件的状态不会导致它们立刻显示，因为父节点被隐藏了)
         List<string> testDailyIDs = new List<string>();
         foreach(var kvp in GameManager.Instance.SuspectManager.GetAllSuspects())
         {
@@ -51,24 +47,46 @@ private void Start()
             if (testDailyIDs.Count == 4) break;
         }
 
-        // 【修改点 2】：先生成并绑定左侧的头像按钮，整个生命周期只执行这一次！
         InitLineupUI(testDailyIDs);
-
-        // 最后设置每日阵容，这会触发默认选中第一个嫌疑人，从而安全调用 UpdateSuspectDetailsUI
         GameManager.Instance.SuspectManager.SetupDailyLineup(testDailyIDs);
-    }
 
+        // 【新增】：强制让UI进入未选中任何嫌疑人的空状态
+        UpdateSuspectDetailsUI(null);
+
+        // 2. 启动 Hint 面板逻辑
+        if (hintPanelController != null)
+        {
+            // 监听 Hint 结束点击事件
+            hintPanelController.OnHintFinished += OnHintCompleted;
+            // 开启 Hint 流程
+            hintPanelController.StartHint();
+        }
+        else
+        {
+            // 防御性代码：如果没有挂载 HintPanel，直接打开分析面板
+            if (analysisMainPanel != null) analysisMainPanel.SetActive(true);
+        }
+    }
+    
+    // 【新增】：当 HintPanel 发出结束信号时触发
+    private void OnHintCompleted()
+    {
+        // 激活主要的分析面板
+        if (analysisMainPanel != null) analysisMainPanel.SetActive(true);
+    }
+    
     private void OnDestroy()
     {
         if (GameManager.Instance != null && GameManager.Instance.SuspectManager != null)
         {
             GameManager.Instance.SuspectManager.OnCurrentSuspectChanged -= UpdateSuspectDetailsUI;
         }
+        if (questionPanelController != null)
+        {
+            questionPanelController.OnQuestionsConfirmed -= OnQuestionPanelConfirmed;
+        }
     }
 
-    // --- UI 刷新模块 ---
-
-    // 【新增】：只负责把左侧的 4 个按钮绑好（头像 + 点击事件）
     private void InitLineupUI(List<string> dailyIDs)
     {
         for (int i = 0; i < avatarButtons.Length; i++)
@@ -83,13 +101,9 @@ private void Start()
                     avatarButtons[i].gameObject.SetActive(true);
                     avatarImages[i].sprite = suspect.BaseData.avatar;
                     
-                    // 闭包绑定点击事件，这里只会执行一次，非常安全
                     avatarButtons[i].onClick.RemoveAllListeners();
                     avatarButtons[i].onClick.AddListener(() => 
                     {
-                        GameManager.Instance.SuspectManager.SetCurrentSuspect(idToSelect);
-                        // 加一句强力 Log 验证点击是否穿透
-                        Debug.Log($"<color=#00FF00>[UI 交互]</color> 成功点击了嫌疑人: {idToSelect}");
                         GameManager.Instance.SuspectManager.SetCurrentSuspect(idToSelect);
                     });
                 }
@@ -101,29 +115,53 @@ private void Start()
         }
     }
 
-    // 【修改点 3】：精简后的刷新方法，只负责渲染当前选中的嫌疑人数据
     private void UpdateSuspectDetailsUI(RuntimeSuspect currentSuspect)
     {
-        if (currentSuspect == null) return;
+        // 【新增】：处理没有任何嫌疑人被选中的空状态
+        if (currentSuspect == null) 
+        {
+            centerPortrait.enabled = false; // 关闭Image组件，防止空Sprite渲染成白块
+            profileText.text = "待指定嫌疑人";
+            
+            if (ScoreController.Instance != null)
+            {
+                ScoreController.Instance.ClearAllClues();
+            }
+            return;
+        }
 
+        // 【新增】：恢复立绘Image的显示
+        centerPortrait.enabled = true;
         centerPortrait.sprite = currentSuspect.BaseData.portrait;
-        profileText.text = currentSuspect.BaseData.profileRichText;
         
-        // 切换嫌疑人时，重置并隐藏问题面板
-        questionPanel.SetActive(false); 
+        // 【修改点】：判断该嫌疑人是否已经被分析过
+        if (currentSuspect.isAnalysed)
+        {
+            // 在原有档案下方追加红色的已分析提示
+            profileText.text = currentSuspect.BaseData.profileRichText + "\n\n<color=#FF3333><b>[ Already Analysed - 档案分析已完成 ]</b></color>";
+        }
+        else
+        {
+            profileText.text = currentSuspect.BaseData.profileRichText;
+        }
+        
+        // 切换嫌疑人时，强制关闭问题面板
+        questionPanelController.ForceClose(); 
+        
+        // 确保头像按钮是激活状态
+        SetAvatarButtonsInteractable(true);
 
-        // 【新增】：切换嫌疑人时，强制清空上一个人的线索池
         if (ScoreController.Instance != null)
         {
             ScoreController.Instance.ClearAllClues();
         }
     }
 
-    // --- 核心逻辑：接收分数并匹配问题池 ---
+    // --- 分析池确认(AnalyzeButton)触发此处 ---
     public void ProcessCaseAnalysis(int totalScore, int totalClues)
     {
         RuntimeSuspect targetSuspect = GameManager.Instance.SuspectManager.CurrentSuspect;
-        if (targetSuspect == null) return; //
+        if (targetSuspect == null) return; // 如果当前是空状态，直接返回拦截
 
         List<InterrogationQuestion> matchedQuestions = null;
         foreach (var tier in targetSuspect.BaseData.interrogationTiers)
@@ -135,110 +173,32 @@ private void Start()
             }
         }
 
-        if (matchedQuestions == null || matchedQuestions.Count == 0)
-        {
-            Debug.LogWarning("未匹配到任何问题列表！");
-            return;
-        }
+        if (matchedQuestions == null || matchedQuestions.Count == 0) return;
 
-        ShowQuestionSelectionPanel(matchedQuestions);
+        // 【核心逻辑】：打开问题面板，并失活左侧的所有嫌疑人头像
+        questionPanelController.OpenPanel(matchedQuestions);
+        SetAvatarButtonsInteractable(false);
     }
 
-    // --- UI：生成问题选项并控制选中数量 ---
-    private void ShowQuestionSelectionPanel(List<InterrogationQuestion> questions)
+    // 【新增】：当 QuestionPanel 点击了它自己的 Confirm 按钮后，会触发这里
+    private void OnQuestionPanelConfirmed()
     {
-        questionPanel.SetActive(true);
-        selectedCount = 0;
-        UpdateSelectionCountText();
-
-        // 清理旧的 Toggle
-        foreach (Transform child in questionListParent) Destroy(child.gameObject);
-        currentQuestionToggles.Clear();
-
-        // 生成新的 Toggle
-        foreach (var q in questions)
-        {
-            GameObject toggleObj = Instantiate(questionTogglePrefab, questionListParent);
-            Toggle toggle = toggleObj.GetComponent<Toggle>(); 
-            TextMeshProUGUI label = toggleObj.GetComponentInChildren<TextMeshProUGUI>();
-
-            // --- 加上这层安全校验 ---
-            if (toggle == null)
-            {
-                Debug.LogError($"[UI 实例化失败] 在预制体上找不到 Toggle 组件！请检查 {questionTogglePrefab.name} 的根节点。");
-                continue;
-            }
-            if (label == null)
-            {
-                Debug.LogError($"[UI 实例化失败] 找不到 TextMeshProUGUI 组件！是不是错用成了旧版 Text？");
-                continue;
-            }
-
-            label.text = q.questionInfo;
-            toggle.isOn = false;
-
-            toggle.onValueChanged.AddListener((isOn) => OnToggleValueChanged(toggle, isOn));
-            currentQuestionToggles.Add(toggle, q.inkVariableName);
-        }
-    }
-
-    private void OnToggleValueChanged(Toggle changedToggle, bool isOn)
-    {
-        if (isOn)
-        {
-            if (selectedCount >= MAX_SELECTION)
-            {
-                // 如果已经选了3个，强制取消当前的勾选
-                changedToggle.SetIsOnWithoutNotify(false);
-                Debug.Log("最多只能选择3个问题！");
-                return;
-            }
-            selectedCount++;
-        }
-        else
-        {
-            selectedCount--;
-        }
+        // 1. 重新激活所有头像按钮
+        SetAvatarButtonsInteractable(true);
         
-        UpdateSelectionCountText();
+        // 2. 刷新当前嫌疑人的 UI 以便显示 "[ Already Analysed ]" 文本
+        UpdateSuspectDetailsUI(GameManager.Instance.SuspectManager.CurrentSuspect);
     }
 
-    private void UpdateSelectionCountText()
+    // 【新增】：控制左侧所有头像按钮是否可交互的方法
+    private void SetAvatarButtonsInteractable(bool state)
     {
-        if (selectionCountText != null)
+        foreach (var btn in avatarButtons)
         {
-            selectionCountText.text = $"已选择质询方向: {selectedCount} / {MAX_SELECTION}";
-        }
-    }
-
-    // --- 确认按钮：将结果写入 Ink ---
-    private void OnConfirmQuestionsClicked()
-    {
-        RuntimeSuspect targetSuspect = GameManager.Instance.SuspectManager.CurrentSuspect;
-        if (targetSuspect == null) return;
-
-        List<string> finalSelectedVars = new List<string>();
-        foreach (var kvp in currentQuestionToggles)
-        {
-            if (kvp.Key.isOn)
+            if (btn != null)
             {
-                finalSelectedVars.Add(kvp.Value);
+                btn.interactable = state;
             }
         }
-
-        Debug.Log($"确认提交！共选中 {finalSelectedVars.Count} 个问题。");
-
-        // 更新 Ink 变量
-        foreach (string inkVar in finalSelectedVars)
-        {
-            // 你的实际项目里在这里对接 Ink 变量更新，例如：
-            // DialogueManager.Instance.currentStory.variablesState[inkVar] = true;
-            Debug.Log($"[Ink更新] 变量 {inkVar} = true");
-        }
-
-        targetSuspect.isInterrogated = true; // 标记嫌疑人状态为已审问
-        questionPanel.SetActive(false); // 隐藏面板
-        
-        // TODO: 可以在这里直接跳转到审问场景 (LoadScene)
     }
 }
