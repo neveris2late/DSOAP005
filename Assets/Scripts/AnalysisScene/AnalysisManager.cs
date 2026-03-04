@@ -132,7 +132,7 @@ public class AnalysisManager : MonoBehaviour
 
         // 【新增】：恢复立绘Image的显示
         centerPortrait.enabled = true;
-        centerPortrait.sprite = currentSuspect.BaseData.portrait;
+        centerPortrait.sprite = currentSuspect.BaseData.filePortrait;
         
         // 【修改点】：判断该嫌疑人是否已经被分析过
         if (currentSuspect.isAnalysed)

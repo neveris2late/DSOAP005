@@ -26,8 +26,6 @@ public class ScoreTier
     public List<InterrogationQuestion> availableQuestions;
 }
 
-
-
 // 在Project窗口右键即可创建该资产： Create -> 游戏数据 -> 嫌疑人档案
 [CreateAssetMenu(fileName = "New Suspect", menuName = "游戏数据/嫌疑人档案")]
 public class SuspectScriptableObject : ScriptableObject
@@ -38,7 +36,12 @@ public class SuspectScriptableObject : ScriptableObject
 
     [Header("美术资源")]
     public Sprite avatar;            // 角色头像
-    public Sprite portrait;          // 角色立绘
+    
+    [Tooltip("用于档案界面的全身/半身立绘")]
+    public Sprite filePortrait;          
+
+    [Tooltip("用于在场景中与玩家对话时弹出的正面立绘（交由UI层Canvas显示）")]
+    public Sprite dialoguePortrait;  // ⚠️ 这里不要叫 workPortrait，改叫 dialoguePortrait
 
     [Header("叙事与对话")]
     [Tooltip("拖入Ink编译后的 .json 文件")]
@@ -52,4 +55,15 @@ public class SuspectScriptableObject : ScriptableObject
     [Header("审问问题配置")]
     [Tooltip("根据线索得分配置不同的可用问题池")]
     public List<ScoreTier> interrogationTiers;
+    
+    [Header("审问场景表现")]
+    [Tooltip("包含该嫌疑人专属的场景背景以及角色【工作状态】立绘的Prefab容器。")]
+    public GameObject interrogationScenePrefab; 
+    
+    // 【新增】进入场景后的提示文本
+    [Tooltip("入场动画结束后显示的提示文字")]
+    [TextArea(2, 4)]
+    public string enterHintText;
+    
+    
 }
