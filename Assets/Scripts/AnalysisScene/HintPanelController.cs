@@ -1,100 +1,93 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using DG.Tweening;
 using System.Collections;
 using System;
 
 public class HintPanelController : MonoBehaviour
 {
     [Header("UI References")]
-    public TextMeshProUGUI hintTextBox;
-    // 保留此引用以防你的 Inspector 丢失绑定，但在这个新逻辑中我们默认将其隐藏
+    [Tooltip("主提示文本的打字机组件 (将使用逐行瞬间显示)")]
+    public GlitchTypeWriterEffect mainHintWriter;
+    [Tooltip("副提示文本的打字机组件 (将使用逐行乱序打字)")]
+    public GlitchTypeWriterEffect subHintWriter;
+    
     public Button continueBtn; 
 
     [Header("Hint Settings")]
-    [TextArea(2, 5)]
-    public string[] hintLines;          // 在面板中输入你想要逐行显示的文本
-    public float fadeDurationPerLine = 1f; // 单行文本渐显/渐隐花费的时间
-    public float delayBetweenLines = 0.5f; // 行与行之间停留阅读的时间
+    [Tooltip("行与行之间停留阅读的时间")]
+    public float delayBetweenLines = 0.5f; 
 
-    // 通知 AnalysisManager 提示已结束的事件
     public event Action OnHintFinished;
 
-    private bool skipRequested = false; // 用于标记玩家是否点击了屏幕
+    private void Awake()
+    {
+        // 【新增】：监听继续按钮的点击事件
+        if (continueBtn != null)
+        {
+            continueBtn.onClick.AddListener(OnContinueClicked);
+        }
+    }
 
     public void StartHint()
     {
         gameObject.SetActive(true);
-        if (continueBtn != null) continueBtn.gameObject.SetActive(false); // 隐藏继续按钮
-        
-        // 初始状态下将文本透明度设为0
-        Color c = hintTextBox.color;
-        c.a = 0;
-        hintTextBox.color = c;
-        
-        StartCoroutine(FadeLinesRoutine());
+        // 开始时先隐藏继续按钮
+        if (continueBtn != null) continueBtn.gameObject.SetActive(false); 
+
+        StartCoroutine(HintFlowRoutine());
     }
 
-    private void Update()
+    private IEnumerator HintFlowRoutine()
     {
-        // 监听鼠标左键点击或屏幕触摸
-        if (Input.GetMouseButtonDown(0))
+        // 1. 直接触发播放，读取文本框自带的文字
+        if (mainHintWriter != null) 
         {
-            skipRequested = true;
+            mainHintWriter.PlayLineByLine(delayBetweenLines);
+        }
+
+        if (subHintWriter != null) 
+        {
+            subHintWriter.PlayLineByLineGlitch(delayBetweenLines);
+        }
+
+        // 2. 持续等待，直到两个打字机都不在播放状态
+        while ((mainHintWriter != null && mainHintWriter.IsPlaying) || 
+               (subHintWriter != null && subHintWriter.IsPlaying))
+        {
+            yield return null;
+        }
+
+        // 3. 【修改】：播放完毕后，不再直接关闭面板，而是激活继续按钮让玩家点击
+        if (continueBtn != null)
+        {
+            continueBtn.gameObject.SetActive(true);
+        }
+        else
+        {
+            // 防御性代码：如果没有绑定按钮，只能直接结束
+            FinishHintFlow();
         }
     }
 
-    private IEnumerator FadeLinesRoutine()
+    // 【新增】：玩家点击继续按钮时触发
+    private void OnContinueClicked()
     {
-        for (int i = 0; i < hintLines.Length; i++)
-        {
-            // 每次只显示当前行
-            hintTextBox.text = hintLines[i];
-            skipRequested = false; // 重置跳过标记
+        FinishHintFlow();
+    }
 
-            // --- 阶段 1：渐显 (Fade In) ---
-            Tween fadeIn = hintTextBox.DOFade(1f, fadeDurationPerLine);
-            while (fadeIn.IsActive() && !fadeIn.IsComplete())
-            {
-                if (skipRequested)
-                {
-                    fadeIn.Complete(); // 玩家点击，瞬间完成渐显动画
-                    skipRequested = false;
-                    break;
-                }
-                yield return null;
-            }
-
-            // --- 阶段 2：停留阅读 (Wait) ---
-            float waitTimer = 0f;
-            while (waitTimer < delayBetweenLines)
-            {
-                if (skipRequested)
-                {
-                    skipRequested = false;
-                    break; // 玩家点击，跳过等待时间
-                }
-                waitTimer += Time.deltaTime;
-                yield return null;
-            }
-
-            // --- 阶段 3：渐隐 (Fade Out) ---
-            Tween fadeOut = hintTextBox.DOFade(0f, fadeDurationPerLine);
-            while (fadeOut.IsActive() && !fadeOut.IsComplete())
-            {
-                if (skipRequested)
-                {
-                    fadeOut.Complete(); // 玩家点击，瞬间完成渐隐动画
-                    skipRequested = false;
-                    break;
-                }
-                yield return null;
-            }
-        }
-
-        // 所有行播放完毕，直接关闭面板并触发回调
+    // 【新增】：抽离出的结束逻辑，关闭面板并通知 AnalysisManager
+    private void FinishHintFlow()
+    {
         gameObject.SetActive(false);
         OnHintFinished?.Invoke();
+    }
+
+    private void OnDestroy()
+    {
+        // 移除监听防内存泄漏
+        if (continueBtn != null)
+        {
+            continueBtn.onClick.RemoveListener(OnContinueClicked);
+        }
     }
 }

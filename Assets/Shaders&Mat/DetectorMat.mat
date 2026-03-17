@@ -1,0 +1,90 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: DetectorMat
+  m_Shader: {fileID: 4800000, guid: a7e736f8ba230404abc72079c101ce38, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _BgAlpha: 0.8
+    - _BgCenterThickness: 0.05
+    - _BgEndThickness: 0.01
+    - _BlendSoftness: 0.05
+    - _ColorMask: 15
+    - _CursorGlow: 2
+    - _CursorHeight: 0.2
+    - _CursorWidth: 0.005
+    - _FillAmount: 1
+    - _GlowSpread: 15
+    - _NormalAmp1: 0.15
+    - _NormalAmp2: 0.1
+    - _NormalFreq1: 15
+    - _NormalFreq2: 20
+    - _NormalSpeed: 2
+    - _Stage1Amp1: 0.15
+    - _Stage1Amp2: 0.1
+    - _Stage1Freq1: 4
+    - _Stage1Freq2: 10
+    - _Stage1Speed: 4
+    - _Stage1Thickness: 0.01
+    - _Stage2Amp1: 0.1
+    - _Stage2Amp2: 0.1
+    - _Stage2Freq1: 15
+    - _Stage2Freq2: 40
+    - _Stage2Speed: 5
+    - _Stage2Thickness: 0.015
+    - _Stage3Amp1: 0.14
+    - _Stage3Amp2: 0.33
+    - _Stage3BlinkSpeed: 5
+    - _Stage3Freq1: 15
+    - _Stage3Freq2: 26
+    - _Stage3Speed: 10
+    - _Stage3Thickness: 0.035
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _Thickness: 0.01
+    - _Threshold1: 0.6
+    - _Threshold2: 0.8
+    - _WarningAmp1: 0
+    - _WarningAmp2: 0.1
+    - _WarningBlinkSpeed: 10
+    - _WarningFreq1: 15
+    - _WarningFreq2: 60
+    - _WarningLerp: 0
+    - _WarningSpeed: 6
+    m_Colors:
+    - _BgColor1: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+    - _BgColor2: {r: 0.049999982, g: 0.049999982, b: 0.049999982, a: 1}
+    - _CursorColor: {r: 1, g: 1, b: 1, a: 1}
+    - _NormalColor: {r: 0, g: 0.8, b: 1, a: 1}
+    - _Stage1Color: {r: 0, g: 0.99215686, b: 0.93566006, a: 1}
+    - _Stage2Color: {r: 1, g: 0.8, b: 0, a: 1}
+    - _Stage3Color: {r: 0.735849, g: 0.0065954328, b: 0, a: 1}
+    - _WarningColor: {r: 1, g: 0.19999996, b: 0, a: 1}
+  m_BuildTextureStacks: []

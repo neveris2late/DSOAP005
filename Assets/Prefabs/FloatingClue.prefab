@@ -207,7 +207,7 @@ MonoBehaviour:
   clueNameText: {fileID: 438379543457101985}
   closeButton: {fileID: 1218600266684875325}
   canvasGroup: {fileID: 4660235222486129775}
-  floatSpeed: 8
+  floatSpeed: 0.52
 --- !u!225 &4660235222486129775
 CanvasGroup:
   m_ObjectHideFlags: 0

@@ -65,3 +65,5 @@ MonoBehaviour:
   interrogationScenePrefab: {fileID: 3658177466501294081, guid: f5256d4548709405f87ce8119e10fae3,
     type: 3}
   enterHintText: "\u4F60\u6765\u5230\u4E86\u65B0\u81EA\u7136\u7535\u5F71\u5236\u4F5C\u516C\u53F8\n\u9648\u9510\u6E05\u6B63\u5728\u8FD9\u91CC\u8FDB\u884C\u62CD\u6444\u5DE5\u4F5C"
+  bgmClip: {fileID: 8300000, guid: e575665c62f4b374593c95386753f918, type: 3}
+  ambientClip: {fileID: 0}

@@ -20,7 +20,7 @@ public class AnalysisManager : MonoBehaviour
     public TextMeshProUGUI profileText;
 
     [Header("引用外部控制器")]
-    // 【新增】：引用新抽离的问题面板控制器
+    // 【新增】：引用问题面板控制器
     public QuestionPanelController questionPanelController; 
     // 【新增】：引用提示面板控制器
     public HintPanelController hintPanelController;

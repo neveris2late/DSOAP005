@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   suspectID: R_Tyler
   suspectName: RickyTyler
+  isSpy: 0
+  isAndroid: 0
   avatar: {fileID: 21300000, guid: 532b341ba7c72437aac215dd5ea3b745, type: 3}
   filePortrait: {fileID: 21300000, guid: fe1ae0cbb973f45ce97ac2604c4a6bc5, type: 3}
   dialoguePortrait: {fileID: 21300000, guid: fe1ae0cbb973f45ce97ac2604c4a6bc5, type: 3}
@@ -65,3 +67,8 @@ MonoBehaviour:
   interrogationScenePrefab: {fileID: 3658177466501294081, guid: 8362da4d13d0944a39e47639d5d888d5,
     type: 3}
   enterHintText: "\u4F60\u6765\u5230\u4E86\u96E8\u6C34\u533A\u7684\u4E91\u6816\u522B\u5885\u7FA411\u680B\n\u91CC\u5947\xB7\u6CF0\u52D2\u6B63\u5728\u4ED6\u7684\u9732\u53F0\u4E0A\u901A\u8BDD"
+  bgmClip: {fileID: 8300000, guid: 2969a6fb928b6ef46814bff494bea0cd, type: 3}
+  ambientClip: {fileID: 0}
+  typingBasePitch: 1
+  locationName: 
+  locationButtonPrefab: {fileID: 0}
