@@ -61,9 +61,42 @@ public class AnalysisManager : MonoBehaviour
             Debug.Log($"嫌疑人 {targetSuspect.BaseData.suspectName} 的隐藏状态已被揭开！");
         }
 
+<<<<<<< Updated upstream
         // 如果需要遍历所有 4 个嫌疑人做群体状态更新，可以这样写：
         /*
         foreach (var kvp in suspectManager.GetAllSuspects())
+=======
+        if (matchedQuestions == null || matchedQuestions.Count == 0) 
+        {
+            Debug.LogWarning($"【系统拦截】分析面板未激活！\n" +
+                             $"当前嫌疑人: {targetSuspect.BaseData.suspectName} \n" +
+                             $"当前得分: {totalScore} \n" +
+                             $"原因: 嫌疑人档案中未配置涵盖 {totalScore} 分的 ScoreTier，或该Tier下没有配置任何审问问题(availableQuestions为空)。");
+            // 恢复按钮交互，不然卡死了
+            if (ScoreController.Instance != null) ScoreController.Instance.analyzeButton.interactable = true; 
+            return; 
+        }
+
+        // 【核心逻辑】：打开问题面板，并失活左侧的所有嫌疑人头像
+        questionPanelController.OpenPanel(matchedQuestions);
+        SetAvatarButtonsInteractable(false);
+    }
+
+    // 【新增】：当 QuestionPanel 点击了它自己的 Confirm 按钮后，会触发这里
+    private void OnQuestionPanelConfirmed()
+    {
+        // 1. 重新激活所有头像按钮
+        SetAvatarButtonsInteractable(true);
+        
+        // 2. 刷新当前嫌疑人的 UI 以便显示 "[ Already Analysed ]" 文本
+        UpdateSuspectDetailsUI(GameManager.Instance.SuspectManager.CurrentSuspect);
+    }
+
+    // 【新增】：控制左侧所有头像按钮是否可交互的方法
+    private void SetAvatarButtonsInteractable(bool state)
+    {
+        foreach (var btn in avatarButtons)
+>>>>>>> Stashed changes
         {
             RuntimeSuspect suspect = kvp.Value;
             // 检查或更新他们的状态

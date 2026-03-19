@@ -68,9 +68,10 @@ public class InteractableText : MonoBehaviour, IPointerClickHandler, IPointerMov
         }
     }
 
-// 更新协程签名，增加 bool isGood 参数
     private IEnumerator SpawnAndFlyCharacters(TMP_LinkInfo linkInfo, string clueID, string clueText, bool isGood)
     {
+        float currentDelay = 0.01f; // 初始发射间隔非常短（产生“密”的效果）
+
         for (int i = 0; i < linkInfo.linkTextLength; i++)
         {
             int charIndex = linkInfo.linkTextfirstCharacterIndex + i;
@@ -82,19 +83,35 @@ public class InteractableText : MonoBehaviour, IPointerClickHandler, IPointerMov
 
             GameObject flyingChar = Instantiate(flyingCharPrefab, transform.root); 
             flyingChar.transform.position = centerPos;
-            flyingChar.GetComponent<TextMeshProUGUI>().text = charInfo.character.ToString();
+            
+            // 获取 TextMeshProUGUI 组件以便后续做透明度渐变
+            TextMeshProUGUI charTMP = flyingChar.GetComponent<TextMeshProUGUI>();
+            charTMP.text = charInfo.character.ToString();
 
             Sequence seq = DOTween.Sequence();
-            seq.Append(flyingChar.transform.DOMoveY(flyingChar.transform.position.y + 30f, 0.3f).SetEase(Ease.OutQuad));
-            seq.Append(flyingChar.transform.DOMove(poolTargetTransform.position, 0.6f).SetEase(Ease.InCubic));
-            seq.Join(flyingChar.transform.DOScale(0.5f, 0.6f)); 
+            
+            // 1. 移除 DOMoveY 的上跳，直接计算飞行时间。
+            // 越往后的字符，飞行总时长越长。这会让排在前面的字符飞得更快，在空中物理拉开距离（变疏）
+            float flyDuration = 0.6f + (i * 0.03f); 
+
+            // 2. 整齐飞去：直接 DOMove 到目标点。
+            // 使用 Ease.InQuint（先慢后快），产生类似数据被加速吸入的效果
+            seq.Append(flyingChar.transform.DOMove(poolTargetTransform.position, flyDuration).SetEase(Ease.InQuint));
+            seq.Join(flyingChar.transform.DOScale(0.2f, flyDuration).SetEase(Ease.InQuad)); 
+            
+            // 3. 逐个消失：利用 DOFade 配合 Ease.InExpo，让字符在靠近终点时迅速变透明
+            seq.Join(charTMP.DOFade(0f, flyDuration).SetEase(Ease.InExpo));
 
             seq.OnComplete(() => Destroy(flyingChar));
 
-            yield return new WaitForSeconds(0.05f); 
+            // 4. 动态发射间隔：每次循环递增 Delay 时间。
+            // 第一批字符几乎同时出发（密），后面的字符出发间隔越来越大（疏）
+            yield return new WaitForSeconds(currentDelay); 
+            currentDelay += 0.015f; 
         }
 
-        yield return new WaitForSeconds(0.8f); 
+        // 等待所有字符的动画（包括拉长的间隔和飞行时间）基本完成，再将数据推入分析池
+        yield return new WaitForSeconds(1.0f); 
         
         if (ScoreController.Instance != null)
         {
